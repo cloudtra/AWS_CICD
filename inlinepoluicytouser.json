@@ -1,0 +1,137 @@
+{
+  "Description": "Create instances ready for CodeDeploy: Create up to 3 Amazon EC2 instances with an associated instance profile and install the AWS CodeDeploy Agent. **WARNING** This template creates one or more Amazon EC2 instances. You will be billed for the AWS resources used if you create a stack from this template. Copyright [2012-2014] Amazon.com, Inc. or its affiliates. All Rights Reserved. Licensed under the Apache License, Version 2.0 (the \"License\"). You may not use this file except in compliance with the License. A copy of the License is located at http://aws.amazon.com/apache2.0/ or in the \"license\" file accompanying this file. This file is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+  "AWSTemplateFormatVersion": "2010-09-09",
+"Parameters": {
+
+	"username": {
+      "Description": "UserName",
+      "Type": "String",	
+	 "Default": "testuser",
+      "ConstraintDescription": "username"
+    
+	},
+	
+	"PolicyName": {
+      "Description": "PolicyName",
+      "Type": "String",	
+	 "Default": "minepolicy",
+      "ConstraintDescription": "PolicyName"
+    
+	},
+  
+	"tagKey": {
+      "Description": "tagKey",
+      "Type": "String",	
+	 "Default": "Name",
+      "ConstraintDescription": "tagKey"
+	},
+	"tagValue": {
+      "Description": "tagValue",
+      "Type": "String",	
+	 "Default": "Value",
+      "ConstraintDescription": "tagValue"
+	}
+	},
+	
+	
+	
+	"Resources": {  
+	"policy": {
+    "Type": "AWS::IAM::Policy",
+    "Properties": {
+        "PolicyName": { "Ref": "PolicyName"},
+        "PolicyDocument": {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowToDescribeAll",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:D*",
+                "ec2:C*",
+                "ec2:A*",
+                "ec2:B*",
+                "ec2:E*",
+                "ec2:F*",
+                "ec2:G*",
+                "ec2:I*",
+                "ec2:T*",
+                "ec2:Re*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowRunInstances",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*::image/*",
+                "arn:aws:ec2:*::snapshot/*",
+                "arn:aws:ec2:*:*:subnet/*",
+                "arn:aws:ec2:*:*:network-interface/*",
+                "arn:aws:ec2:*:*:security-group/*",
+                "arn:aws:ec2:*:*:key-pair/*"
+            ]
+        },
+        {
+            "Sid": "AllowRunInstancesWithRestrictions",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateVolume",
+                "ec2:RunInstances"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:volume/*",
+                "arn:aws:ec2:*:*:instance/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:RequestTag/Name": { "Ref": "tagValue"}
+                },
+                "ForAllValues:StringEquals": {
+                    "aws:TagKeys": [
+                        { "Ref": "tagKey"}
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "AllowCreateTagsOnlyLaunching",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateTags"
+            ],
+            "Resource": [
+                "arn:aws:ec2:*:*:volume/*",
+                "arn:aws:ec2:*:*:instance/*"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "ec2:CreateAction": "RunInstances"
+                }
+            }
+        }
+    ]
+},
+        "Users": [
+            {
+                "Ref": "username"
+            }
+        ]
+    }
+}
+
+
+},
+"Outputs": {
+    "result": {
+      "Value": { 
+                "Ref": "username"
+            
+       
+      }
+    }
+  }
+  }
