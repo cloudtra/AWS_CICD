@@ -1,0 +1,1517 @@
+{
+  "Description": "Create instances ready for CodeDeploy: Create up to 3 Amazon EC2 instances with an associated instance profile and install the AWS CodeDeploy Agent. **WARNING** This template creates one or more Amazon EC2 instances. You will be billed for the AWS resources used if you create a stack from this template. Copyright [2012-2014] Amazon.com, Inc. or its affiliates. All Rights Reserved. Licensed under the Apache License, Version 2.0 (the \"License\"). You may not use this file except in compliance with the License. A copy of the License is located at http://aws.amazon.com/apache2.0/ or in the \"license\" file accompanying this file. This file is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.",
+  "AWSTemplateFormatVersion": "2010-09-09",
+"Parameters": {
+    "TagKey": {
+      "Description": "The EC2 tag key that identifies this as a target for deployments.",
+      "Type": "String",
+	  "Default": "Name",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "ConstraintDescription": "Can contain only ASCII characters."
+    },
+	"SonarURL": {
+      "Description": "SonarURL",
+      "Type": "String",
+	  "Default": "http://34.238.246.231:9000",
+
+      "ConstraintDescription": "SonarURL"
+    },	
+	"BucketName": {
+      "Description": "BucketName",
+      "Type": "String",	 
+      "ConstraintDescription": "SonarURL"
+    },
+	"applicationport": {
+      "Description": "applicationport",
+      "Type": "Number",	 
+	  "Default" : "8080",
+      "ConstraintDescription": "applicationport"
+    },
+	"ALBName": {
+      "Description": "ALBName",
+      "Type": "String",	 
+      "ConstraintDescription": "ALBName"
+    },
+	"ALBProtocol": {
+      "Description": "ALBProtocol",
+      "Type": "String",
+	  "Default": "HTTP",
+	   "AllowedValues": [
+        "HTTP",
+        "HTTPS"
+      ],	 
+      "ConstraintDescription": "ALBProtocol"
+    },	
+	"sonartoken": {
+      "Description": "sonartoken",
+      "Type": "String",
+	  "Default": "25768473a95842a095bfb33f1b13c01d3d44ed08",
+
+      "ConstraintDescription": "sonartoken"
+    },	
+	"IPProtocol": {
+      "Description": "IPProtocol",
+      "Type": "String",
+	  "Default": "TCP",
+      "ConstraintDescription": "IPProtocol"
+    },	
+		"fromPort": {
+      "Description": "fromPort",
+      "Type": "Number",
+	  "Default": "80",
+
+      "ConstraintDescription": "fromPort"
+    },	
+	"fromPortother": {
+      "Description": "fromPortother",
+      "Type": "Number",
+	  "Default": "8080",
+
+      "ConstraintDescription": "fromPortother"
+    },
+	"toPort": {
+      "Description": "toPort",
+      "Type": "Number",
+	  "Default": "80",
+
+      "ConstraintDescription": "toPort"
+    },
+	"toPortother": {
+      "Description": "toPortother",
+      "Type": "Number",
+	  "Default": "8080",
+
+      "ConstraintDescription": "toPortother"
+    },
+	 "TagValue": {
+      "Description": "The EC2 tag value that identifies this as a target for deployments.",
+      "Type": "String",
+	  "Default": "jpet",
+      "AllowedPattern": "[\\x20-\\x7E]*",
+      "ConstraintDescription": "Can contain only ASCII characters."
+    },
+    "KeyPairName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+	"SubnetID": {
+      "Description" : "subnet ",
+	   "Type": "String",
+      "Default": "subnet-60a1563d,subnet-93452ab8",
+      "ConstraintDescription" : "subnet"
+    },
+		"VPCID": {
+      "Description" : "Select VPCID ",
+       "Type": "String",
+	    "Default": "vpc-8835bdf0",
+	   
+      "ConstraintDescription" : "select VPC."
+    },
+	"CodeBuildName": {
+      "Description": "CodeBuildName",
+      "Type": "String",
+	  "Default": "cfnbuild",
+
+      "ConstraintDescription": "CodeBuildName."
+    },
+	"ASGCoolDown": {
+      "Description": "ASGCoolDown",
+       "Type": "Number",
+	  "Default": "300",
+      "ConstraintDescription": "ASGCoolDown"
+    },
+	
+	"ASGHealthCheckGracePeriod": {
+      "Description": "HealthCheckGracePeriod",
+       "Type": "Number",
+	  "Default": "300",
+      "ConstraintDescription": "HealthCheckGracePeriod"
+    },	
+	"ASGMaxinstance": {
+      "Description": "ASGMaxinstance",
+       "Type": "Number",
+	  "Default": "1",
+      "ConstraintDescription": "ASGMaxinstance"
+    },	
+	"ASGMininstance": {
+      "Description": "ASGMininstance",
+       "Type": "Number",
+	  "Default": "1",
+      "ConstraintDescription": "ASGMininstance"
+    },
+	"DomainName" : {
+	 "Description": "Domain_Name",
+       "Type": "String",
+	  "Default": "testing.com.",
+      "ConstraintDescription": "Domain_name"
+    },
+	
+	"GithubToken": {
+      "Description": "GithubToken",
+      "Type": "String",
+	 "Default": "a24b9cbfb2066532758f807db798f6d68bf53d7e",
+      "ConstraintDescription": "GithubToken"
+    },
+	"BitbucketUsername": {
+      "Description": "BitbucketUsername",
+      "Type": "String",
+ "Default": "pulkit786agar",
+      "ConstraintDescription": "BitbucketUsername"
+    },	
+	"Bitbucketlogin": {
+      "Description": "Bitbucketlogin",
+      "Type": "String",
+ "Default": "apulkit21@gmail.com",
+      "ConstraintDescription": "Bitbucketlogin"
+    },	
+	"BitbucketPassword": {
+      "Description": "BitbucketPassword",
+      "Type": "String",
+	"NoEcho": "true",
+	 "Default": "jira786!*",
+      "ConstraintDescription": "BitbucketPassword"
+    },
+	"CodeDeployApp": {
+      "Description": "CodeDeployApp",
+      "Type": "String",
+	  "Default": "cfndepoyapp",
+      "ConstraintDescription": "CodeDeployApp"
+    },
+	"PrimarySourceType": {
+      "Description": "Priamry Source",
+      "Type": "String",
+      "Default": "BITBUCKET",
+      "ConstraintDescription": "Must  be github or bitbukcet .",
+      "AllowedValues": [
+        "GITHUB",
+        "BITBUCKET"
+      ]
+    },
+	"SecondarySourceType": {
+      "Description": "Priamry Source",
+      "Type": "String",
+      "Default": "GITHUB",
+      "ConstraintDescription": "Must  be github or bitbukcet .",
+      "AllowedValues": [
+        "GITHUB",
+        "BITBUCKET"
+      ]
+    },
+	"InstanceRootVolumeSize": {
+			"Description": "Instance Root Volume Size.",
+			"Type": "String",
+			"Default": "100"
+		},
+	"GithubREPONAME": {
+      "Description": "REPO name ",
+      "Type": "String",
+      "Default": "JavaAppCICD",
+      "ConstraintDescription": "REPO name ."
+      
+    },
+	"AMIIDDeploy": {
+			"Description": "The AMI ID for the Auto Scaling Group to utilize.",
+			"Type": "String",
+			"Default": "ami-00f28d633aa365640"
+		},
+	"GithubrepoOwner": {
+      "Description": "RepoOwner",
+      "Type": "String",
+      "Default": "git786hub",
+      "ConstraintDescription": "REPO owner."
+      
+    },
+	"BitbucketREPONAME": {
+      "Description": "Btbucket REPO name ",
+      "Type": "String",
+      "Default": "myfirstrepo",
+      "ConstraintDescription": "REPO name ."
+      
+    },
+	"PrimaryBranch": {
+      "Description": "Branch",
+      "Type": "String",
+      "Default": "master",
+      "ConstraintDescription": "Branch"
+      
+    },
+	
+	"SecondarySourceBranch": {
+      "Description": "Branch",
+      "Type": "String",
+      "Default": "master",
+      "ConstraintDescription": "Branch"
+      
+    },	
+    "InstanceType": {
+      "Description": "Amazon EC2 instance type.",
+      "Type": "String",
+      "Default": "t1.micro",
+	     "AllowedValues" : [ "t1.micro", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge"],
+      "ConstraintDescription": "Must be a valid Amazon EC2 instance type."
+    },
+    
+    "OperatingSystem": {
+      "Description": "Amazon EC2 operating system type (Linux or Windows).",
+      "Type": "String",
+      "Default": "Linux",
+      "ConstraintDescription": "Must be Windows or Linux.",
+      "AllowedValues": [
+        "Linux",
+        "Windows"
+      ]
+    },
+	"ASGName": {
+			"Type": "String",
+			"Description": "ASG Name.",
+			"Default": "ASGdefault"
+		},
+	"AutoscalingYESorNO": {
+			"Type": "String",
+			"Description": "You want to deploy on AutoScaling",
+			"Default": "No",
+			  "AllowedValues": [
+        "Yes",
+        "No"
+      ]
+		},		
+    "SSHLocation": {
+      "Description": "The IP address range that can be used to connect using SSH or RDP to the Amazon EC2 instances.",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+"Mappings": {
+  "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "HVM64"  },
+      "t2.nano"     : { "Arch" : "HVM64"  },
+      "t2.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t2.medium"   : { "Arch" : "HVM64"  },
+      "t2.large"    : { "Arch" : "HVM64"  },
+      "m1.small"    : { "Arch" : "HVM64"  },
+      "m1.medium"   : { "Arch" : "HVM64"  },
+      "m1.large"    : { "Arch" : "HVM64"  },
+      "m1.xlarge"   : { "Arch" : "HVM64"  },
+      "m2.xlarge"   : { "Arch" : "HVM64"  },
+      "m2.2xlarge"  : { "Arch" : "HVM64"  },
+      "m2.4xlarge"  : { "Arch" : "HVM64"  },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "m4.10xlarge" : { "Arch" : "HVM64"  },
+      "c1.medium"   : { "Arch" : "HVM64"  },
+      "c1.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "g2.8xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"        : {"Linux" : "ami-0ff8a91507f77f867", "Windows" : "ami-0a584ac55a7631c0c"},
+      "us-west-2"        : {"Linux" : "ami-55a7ea65", "Windows" : "ami-0e09505bc235aa82d"},
+      "us-west-1"        : {"Linux" : "ami-0f65671a86f061fcd", "Windows" : "ami-0f65671a86f061fcd"},
+      "eu-west-1"        : {"Linux" : "ami-047bb4163c506cd98", "Windows" : "ami-0a7c483d527806435"},
+      "eu-west-2"        : {"Linux" : "ami-f976839e", "Windows" : "NOT_SUPPORTED"},
+      "eu-west-3"        : {"Linux" : "ami-0ebc281c20e89ba4b", "Windows" : "NOT_SUPPORTED"},
+      "eu-central-1"     : {"Linux" : "ami-0233214e13e500f77", "Windows" : "ami-06223d46a6d0661c7"},
+      "ap-northeast-1"   : {"Linux" : "ami-06cd52961ce9f0d85", "Windows" : "ami-053cdd503598e4a9d"},
+      "ap-northeast-2"   : {"Linux" : "ami-0a10b2721688ce9d2", "Windows" : "NOT_SUPPORTED"},
+      "ap-northeast-3"   : {"Linux" : "ami-0d98120a9fb693f07", "Windows" : "NOT_SUPPORTED"},
+      "ap-southeast-1"   : {"Linux" : "ami-08569b978cc4dfa10", "Windows" : "ami-0be9df32ae9f92309"},
+      "ap-southeast-2"   : {"Linux" : "ami-09b42976632b27e9b", "Windows" : "ami-0a9ce9fecc3d1daf8"},
+      "ap-south-1"       : {"Linux" : "ami-0912f71e06545ad88", "Windows" : "ami-097b15e89dbdcfcf4"},
+      "us-east-2"        : {"Linux" : "ami-0b59bfac6be064b78", "Windows" : "NOT_SUPPORTED"},
+      "ca-central-1"     : {"Linux" : "ami-0b18956f", "Windows" : "NOT_SUPPORTED"},
+      "sa-east-1"        : {"Linux" : "ami-07b14488da8ea02a0", "Windows" : "NOT_SUPPORTED"},
+      "cn-north-1"       : {"Linux" : "ami-0a4eaf6c4454eda75", "Windows" : "NOT_SUPPORTED"},
+      "cn-northwest-1"   : {"Linux" : "ami-6b6a7d09", "Windows" : "NOT_SUPPORTED"}
+    },
+
+  
+    "OS2SSHPort": {
+      "Linux": {
+        "SSHPort": "22"
+      },
+	  "Windows": {
+        "SSHPort": "3389"
+      }
+    },
+	 "ALBPort": {
+      "HTTP": {
+        "Port": "80",
+		"protocol" : "HTTP"
+      },
+	  "HTTPS": {
+        "Port": "443",
+		"protocol" : "HTTP"
+		
+      }
+    }
+  },
+"Conditions": {
+   
+    "LaunchLinuxEC2Instance1": {
+      "Fn::Equals": [
+        {
+          "Ref": "OperatingSystem"
+        },
+        "Linux"
+      ]
+    },
+	"ASGOption": {
+      "Fn::Equals": [
+        {
+          "Ref": "AutoscalingYESorNO"
+        },
+        "Yes"
+      ]
+    },
+	"Githubcond": {
+		 "Fn::Or" : [
+      {"Fn::Equals": [
+        {
+          "Ref": "PrimarySourceType"
+        },
+        "GITHUB"
+      ]},
+	  {"Fn::Equals": [
+        {
+          "Ref": "SecondarySourceType"
+        },
+        "GITHUB"
+      ]}]
+	  
+    },
+	"Bitbucketcond": {
+	  "Fn::Or" : [
+	  { "Fn::Equals": [
+        {
+          "Ref": "SecondarySourceType"
+        },
+        "BITBUCKET"
+      ]},
+	  {"Fn::Equals": [
+        {
+          "Ref": "PrimarySourceType"
+        },
+        "BITBUCKET"
+      ]}]
+    },
+	"gitbit": {
+       "Fn::And" : [
+	  { "Fn::Equals": [
+        {
+          "Ref": "PrimarySourceType"
+        },
+        "GITHUB"
+      ]},
+	  {"Fn::Equals": [
+        {
+          "Ref": "SecondarySourceType"
+        },
+        "BITBUCKET"
+      ]}]
+    },
+	"bitgit": {
+       "Fn::And" : [
+	  { "Fn::Equals": [
+        {
+          "Ref": "PrimarySourceType"
+        },
+        "BITBUCKET"
+      ]},
+	  {"Fn::Equals": [
+        {
+          "Ref": "SecondarySourceType"
+        },
+        "GITHUB"
+      ]}]
+    },
+	"ASGOptionfalse": {
+      "Fn::Equals": [
+        {
+          "Ref": "AutoscalingYESorNO"
+        },
+        "No"
+      ]
+    } ,
+    "ALBHTTP": {
+      "Fn::Equals": [
+        {
+          "Ref": "ALBProtocol"
+        },
+        "HTTP"
+      ]
+    },
+	"ALBHTTPS": {
+      "Fn::Equals": [
+        {
+          "Ref": "ALBProtocol"
+        },
+        "HTTPS"
+      ]
+    }
+	
+  },
+"Resources": {  
+    "github":{
+  "Type" : "AWS::CodeBuild::SourceCredential",
+  "Condition": "Githubcond",
+  "Properties" : {
+      "AuthType" : "PERSONAL_ACCESS_TOKEN",
+      "ServerType" : "GITHUB",
+      "Token" : {"Ref": "GithubToken"}
+	  
+    }
+},
+    "bitbucket":{
+
+  "Type" : "AWS::CodeBuild::SourceCredential",
+  "Condition": "Bitbucketcond",
+  "Properties" : {
+      "AuthType" : "BASIC_AUTH",
+      "ServerType" : "BITBUCKET",
+      "Token" : {"Ref": "BitbucketPassword"},
+      "Username" :  { "Ref": "Bitbucketlogin" }
+    }
+},
+    "S3Bucket":{
+  "Type" : "AWS::S3::Bucket",
+  "DependsOn": "BucketPermission",
+  "DeletionPolicy" : "Retain",
+   "Properties": {
+	     
+            "BucketName": { "Ref" : "BucketName" },
+        "NotificationConfiguration": {
+          "LambdaConfigurations": [
+            {
+              "Event": "s3:ObjectCreated:*",
+              "Function": { "Fn::GetAtt" : [ "BucketWatcher", "Arn" ] }
+            }
+          ]
+        }
+      }
+  
+    },
+	"BucketPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {         "Fn::GetAtt": [ "BucketWatcher",  "Arn"]},
+        "Principal": "s3.amazonaws.com",
+        "SourceAccount": { "Ref" : "AWS::AccountId" },
+        "SourceArn": { "Fn::Sub": [ "arn:aws:s3:::${BucketName}", { "BucketName": {"Ref" : "BucketName" }} ]}
+      }
+    },
+	"BucketWatcher": {
+      "Type": "AWS::Lambda::Function",
+	 
+      "Properties": {
+        "Description": "s3 trigger lambda",
+        "Handler": "index.lambda_handler",
+        "Role":  { "Fn::GetAtt" : [ "LambdaExecutionRole", "Arn" ] },
+        "Code": {
+          "ZipFile": { "Fn::Sub" : [ 
+		 "import json\nimport boto3\nimport botocore\ndef lambda_handler(event, context):\n    if '${xyz}'=='No':\n        client=boto3.client('codedeploy')\n        response = client.create_deployment(\n            applicationName='${CodeDeployApp}',\n            deploymentGroupName='${CodeDeployApp}',\n            revision={\n                'revisionType': 'S3',\n                's3Location': {\n              'bucket': '${BucketName}',\n                'key': 'target',\n              'bundleType': 'zip',\n              }\n         },\n            description='string',\n         targetInstances={\n                 'ec2TagSet': {\n                    'ec2TagSetList': [\n                        [\n                         {\n                             'Key': '${TagKey1}',\n                              'Value': '${TagValue1}',\n                              'Type': 'KEY_AND_VALUE'\n                           },\n                        ],\n                    ]\n                }\n          }\n         )\n    else:\n        client=boto3.client('codedeploy')\n        response = client.create_deployment(\n         applicationName='${CodeDeployApp}',\n           deploymentGroupName='${CodeDeployApp}',\n           revision={\n                'revisionType': 'S3',\n             's3Location': {\n                   'bucket': '${BucketName}',\n                    'key': 'target',\n                  'bundleType': 'zip',\n                                                     }\n                         },\n            description='string',\n          targetInstances={ 'autoScalingGroups': [\n              '${ASGName}',\n             ]\n                         }\n     )\n    return {\n        'statusCode': 200,\n        'body': json.dumps('success')\n            }\n",
+		 {  "BucketName": {"Ref" : "BucketName" } , "applicationName": {"Ref" : "CodeDeployApp" }, "deploymentGroupName": {"Ref" : "CodeDeployApp" }, "TagKey1": {"Ref" : "TagKey" }, "TagValue1": {"Ref" : "TagValue" }, "ASGName" : { "Ref" :"ASGName" }, "xyz" : { "Ref" :"AutoscalingYESorNO" }  } ] }
+        },
+        "Timeout": 600,
+        "Runtime": "python3.7"
+      }
+    },
+	"LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "S3Policy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:PutObject",
+                    "S3:DeleteObject"
+                  ],
+                  "Resource": { "Fn::Sub": [ "arn:aws:s3:::${BucketName}", { "BucketName": {"Ref" : "BucketName" }} ]}},
+				    {
+                  "Effect": "Allow",
+                  "Action": "*"
+                  ,
+                  "Resource": "*" }		
+				  
+				 
+				  
+				  
+				  
+              ]
+            }
+          }
+        ]
+      }
+    },	
+	"ASG": {
+			"Type": "AWS::AutoScaling::AutoScalingGroup",
+			
+      "Condition": "ASGOption",
+			
+			"Properties": {
+				"AutoScalingGroupName": {"Ref": "ASGName"},
+				"Cooldown": { "Ref": "ASGCoolDown" },
+				"DesiredCapacity": { "Ref": "ASGMininstance" },
+				"HealthCheckGracePeriod": { "Ref": "ASGHealthCheckGracePeriod" },
+				"HealthCheckType": "EC2",
+				"LaunchConfigurationName": {"Ref": "ASGLaunchConfig"},
+				"MaxSize": { "Ref": "ASGMaxinstance" },
+				"MinSize": { "Ref": "ASGMininstance" },
+				"VPCZoneIdentifier":   { "Fn::Split" : [ "," , { "Ref" : "SubnetID"}  ] },
+				 "TargetGroupARNs" : [{ "Ref": "TargetGroupASG"} ],
+				"Tags": [{
+						"Key": "Name",
+						"Value": {
+							"Ref": "TagValue"
+						},
+						"PropagateAtLaunch": "true"
+					}
+				]
+			}
+		},
+	"ASGLaunchConfig": {
+			"Type": "AWS::AutoScaling::LaunchConfiguration",
+			
+      "Condition": "ASGOption",
+			"Version": "1.0",
+			"Properties": {
+				"BlockDeviceMappings": [{
+						"DeviceName": "/dev/xvda",
+						"Ebs": {
+							"DeleteOnTermination": "true",
+							"VolumeSize": {
+								"Ref": "InstanceRootVolumeSize"
+							},
+							"VolumeType": "gp2"
+						}
+					}
+				],
+				"EbsOptimized": "false",
+				
+				"ImageId": {
+					"Ref": "AMIIDDeploy"
+				},
+				 "IamInstanceProfile" :  {       "Ref": "InstanceRoleInstanceProfile"   },
+				"InstanceMonitoring": "false",
+				"InstanceType": {
+					"Ref": "InstanceType"
+				},
+				"KeyName" : {"Ref": "KeyPairName"},
+				"SecurityGroups": [	{
+                            "Fn::GetAtt": [
+                                "SecurityGroup",
+                                "GroupId"
+                            ]
+                        }
+				
+				
+				]
+				
+			
+			}
+		},
+	"ASGScaleDownPolicy": {
+			"Type": "AWS::AutoScaling::ScalingPolicy",
+			
+      "Condition": "ASGOption",
+			"Properties": {
+				"AdjustmentType": "ChangeInCapacity",
+				"AutoScalingGroupName": {
+					"Ref": "ASG"
+				},
+				"Cooldown": "300",
+				"PolicyType": "SimpleScaling",
+				"ScalingAdjustment": "-1"
+			}
+		},
+	"ASGScaleUpPolicy": {
+			"Type": "AWS::AutoScaling::ScalingPolicy",
+			
+      "Condition": "ASGOption",
+			"Properties": {
+				"AdjustmentType": "ChangeInCapacity",
+				"AutoScalingGroupName": {
+					"Ref": "ASG"
+				},
+				"Cooldown": "60",
+				"PolicyType": "SimpleScaling",
+				"ScalingAdjustment": "1"
+			}
+		},
+	"LinuxEC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Condition": "LaunchLinuxEC2Instance1",	 
+	  "Condition": "ASGOptionfalse",	
+	  
+    
+      "Properties": {
+	  "ImageId" : { "Ref" : "AMIIDDeploy" },
+       
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+       
+        "KeyName": {
+          "Ref": "KeyPairName"
+        },
+        "Tags": [
+          {
+            "Key": {
+              "Ref": "TagKey"
+            },
+            "Value": {
+              "Ref": "TagValue"
+            }
+          }
+        ],
+        "IamInstanceProfile": {
+          "Ref": "InstanceRoleInstanceProfile"
+        }
+      }
+    },
+    "SecurityGroup": {
+	
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable HTTP access via port 80 and SSH access.",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol":  {  "Ref": "IPProtocol" },
+            "FromPort": {  "Ref": "fromPort" },
+            "ToPort": {  "Ref": "toPort" },
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            }
+          },
+		   {
+            "IpProtocol": {  "Ref": "IPProtocol" },
+            "FromPort": {  "Ref": "fromPortother" },
+            "ToPort":{  "Ref": "toPortother" },
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": {
+              "Fn::FindInMap": [
+                "OS2SSHPort",
+                {
+                  "Ref": "OperatingSystem"
+                },
+                "SSHPort"
+              ]
+            },
+            "ToPort": {
+              "Fn::FindInMap": [
+                "OS2SSHPort",
+                {
+                  "Ref": "OperatingSystem"
+                },
+                "SSHPort"
+              ]
+            },
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            }
+          }
+        ]
+      }
+    },
+	"cfnbuild": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Sid": "1",
+              "Effect": "Allow",
+              "Principal": {
+                "Service":   "codebuild.amazonaws.com"
+				
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    },
+	 "cfnbuildpolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "InstanceRole",
+        "PolicyDocument": {
+          "Statement": [
+            
+			   {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "cfnbuild"
+          }
+        ]
+      }
+    },	
+	"CodeDeployTrustRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Sid": "1",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+    {
+                   "Fn::Join": [
+					".", [
+							"codedeploy",
+							{ "Ref" : "AWS::Region" },
+							"amazonaws.com"
+	  
+						]
+								]
+                }
+				]
+				
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    },
+    "CodeDeployRolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "CodeDeployPolicy",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Resource": [
+                "*"
+              ],
+              "Action": [
+                "ec2:Describe*"
+              ]
+            },
+			   {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        },
+            {
+              "Effect": "Allow",
+              "Resource": [
+                "*"
+              ],
+              "Action": [
+                "autoscaling:CompleteLifecycleAction",
+                "autoscaling:DeleteLifecycleHook",
+                "autoscaling:DescribeLifecycleHooks",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:PutLifecycleHook",
+                "autoscaling:RecordLifecycleActionHeartbeat"
+              ]
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "CodeDeployTrustRole"
+          }
+        ]
+      }
+    },
+	"CDRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Sid": "1",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+    {
+                   "Fn::Join": [
+					".", [
+							"codedeploy",
+							"amazonaws.com"
+	  
+						]
+								]
+                }
+				]
+				
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    },
+    "CDRolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "CDRolepolicy",
+        "PolicyDocument": {
+          "Statement": [
+           
+			   {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        },
+            {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:CompleteLifecycleAction",
+                "autoscaling:DeleteLifecycleHook",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeLifecycleHooks",
+                "autoscaling:PutLifecycleHook",
+                "autoscaling:RecordLifecycleActionHeartbeat",
+                "autoscaling:CreateAutoScalingGroup",
+                "autoscaling:UpdateAutoScalingGroup",
+                "autoscaling:EnableMetricsCollection",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribePolicies",
+                "autoscaling:DescribeScheduledActions",
+                "autoscaling:DescribeNotificationConfigurations",
+                "autoscaling:DescribeLifecycleHooks",
+                "autoscaling:SuspendProcesses",
+                "autoscaling:ResumeProcesses",
+                "autoscaling:AttachLoadBalancers",
+                "autoscaling:PutScalingPolicy",
+                "autoscaling:PutScheduledUpdateGroupAction",
+                "autoscaling:PutNotificationConfiguration",
+                "autoscaling:PutLifecycleHook",
+                "autoscaling:DescribeScalingActivities",
+                "autoscaling:DeleteAutoScalingGroup",
+                "ec2:DescribeInstances",
+                "ec2:DescribeInstanceStatus",
+                "ec2:TerminateInstances",
+                "tag:GetResources",
+                "sns:Publish",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:PutMetricAlarm",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:DescribeInstanceHealth",
+                "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DescribeTargetHealth",
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:DeregisterTargets"
+            ],
+            "Resource": "*"
+        }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "CDRole"
+          }
+        ]
+      }
+    },   
+    "InstanceRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/"
+      }
+    },
+    "InstanceRolePolicies": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "InstanceRole",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "autoscaling:Describe*",
+                "cloudformation:Describe*",
+                "cloudformation:GetTemplate",
+                "s3:Get*"
+              ],
+              "Resource": "*"
+            },
+			   {
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*"
+        }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "InstanceRole"
+          }
+        ]
+      }
+    },
+	"InstanceRoleInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "InstanceRole"
+          }
+        ]
+      }
+    },	
+	"MyDEP": { 
+  "Type" : "AWS::CodeBuild::Project",
+  "Condition": "gitbit",
+  "Properties" : {
+      "Artifacts" : {
+	  "EncryptionDisabled" : "true",
+  "Location" : { "Ref" : "S3Bucket" },
+  "Name" : "target",
+  "Type" : "S3",
+  "Packaging" : "ZIP"
+},
+      "Environment" : {
+  "ComputeType" : "BUILD_GENERAL1_SMALL",
+  "Image" : "aws/codebuild/standard:1.0-1.8.0",
+  "Type" : "LINUX_CONTAINER",
+  "EnvironmentVariables": [
+      {
+        "Name": "owner",
+		"Type" : "PLAINTEXT",
+        "Value":  { "Ref" : "BitbucketUsername" }
+      },
+	  {
+        "Name": "weblink",
+		"Type" : "PLAINTEXT",
+        "Value": "bitbucket.org"
+      },
+      {
+        "Name": "repo",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "BitbucketREPONAME" }
+      },
+	  {
+        "Name": "sonarURL",
+		"Type" : "PLAINTEXT",
+        "Value":  { "Ref" : "SonarURL" }
+      },
+	  {
+        "Name": "sonarproject",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "AWS::StackName" }
+      },
+      {
+        "Name": "Projcetkey",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "AWS::StackId" }
+      },
+	   {
+        "Name": "sonartoken",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "sonartoken" }
+      }
+	  
+     
+    ]
+}, 
+  "Name" : { "Ref" : "CodeBuildName" },
+      "ServiceRole" :  {
+  "Fn::Join": [
+  "/", [ {
+  "Fn::Join": [
+  ":", [
+   "arn:aws:iam:",
+   { "Ref": "AWS::AccountId"  },
+   "role"
+   ]
+   ]},
+     {   "Ref": "cfnbuild"   }
+	 ]
+	 ]},
+	 
+      "Source" : {  
+	  
+  "Auth" : {
+  "Resource" : { "Ref" : "github" },
+  "Type" : "OAUTH"
+},   
+     "Location" :  {
+  "Fn::Join": [
+    "/", [
+      "https:/",
+      "github.com",
+      {
+        "Ref": "GithubrepoOwner"
+      },
+	   {
+        "Ref": "GithubREPONAME"
+      }
+	  
+    ]
+  ]
+},	  
+     "Type" : {"Ref":   "PrimarySourceType"  }
+},
+
+"SecondarySources" : [ {
+  "Auth" :  {
+  "Resource" : { "Ref" : "bitbucket" },
+  "Type" : "OAUTH"
+},   
+"SourceIdentifier": "secondary",
+"Location" :  {
+  "Fn::Join":[
+ "@", [ 
+ 
+  { 
+  "Fn::Join":[
+ "/", [  
+		"https:/",
+		{
+        "Ref": "BitbucketUsername"
+		}
+	  ]]},    
+	   {
+  "Fn::Join":[
+ "/", [ 
+	  "bitbucket.org",	   
+      {
+        "Ref": "BitbucketUsername"
+      },
+	   {
+        "Ref": "BitbucketREPONAME"
+      }    
+  ] ]
+}
+		
+      ]
+	  ]},
+  "Type" : "BITBUCKET"
+} ],
+
+ "Triggers" : {
+ 
+  "Webhook" : "true"
+}
+  
+    } 
+	
+    },
+   	"MyDEPbitgit": { 
+  "Type" : "AWS::CodeBuild::Project",
+  "Condition": "bitgit",
+  "Properties" : {
+      "Artifacts" : {
+	  "EncryptionDisabled" : "true",
+  "Location" : { "Ref" : "S3Bucket" },
+  "Name" : "target",
+  "Type" : "S3",
+  "Packaging" : "ZIP"
+},
+      "Environment" : {
+  "ComputeType" : "BUILD_GENERAL1_SMALL",
+  "Image" : "aws/codebuild/standard:1.0-1.8.0",
+  "Type" : "LINUX_CONTAINER",
+  "EnvironmentVariables": [
+      {
+        "Name": "owner",
+		"Type" : "PLAINTEXT",
+        "Value":  { "Ref" : "GithubrepoOwner" }
+      },
+	  {
+        "Name": "weblink",
+		"Type" : "PLAINTEXT",
+        "Value": "github.com"
+      },
+      {
+        "Name": "repo",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "GithubREPONAME" }
+      },
+	  {
+        "Name": "sonarURL",
+		"Type" : "PLAINTEXT",
+        "Value":  { "Ref" : "SonarURL" }
+      },
+	  {
+        "Name": "sonarproject",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "AWS::StackName" }
+      },
+      {
+        "Name": "Projcetkey",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "AWS::StackId" }
+      },
+	    {
+        "Name": "sonartoken",
+		"Type" : "PLAINTEXT",
+        "Value": { "Ref" : "sonartoken" }
+      }
+	  
+     
+    ]
+}, 
+  "Name" : { "Ref" : "CodeBuildName" },
+      "ServiceRole" :  {
+  "Fn::Join": [
+  "/", [ {
+  "Fn::Join": [
+  ":", [
+   "arn:aws:iam:",
+   { "Ref": "AWS::AccountId"  },
+   "role"
+   ]
+   ]},
+     {   "Ref": "cfnbuild"   }
+	 ]
+	 ]},
+	 
+      "Source" : {  
+	  
+  "Auth" : {
+  "Resource" : { "Ref" : "bitbucket" },
+  "Type" : "OAUTH"
+},   
+     "Location" :  {
+  "Fn::Join":[
+ "@", [ 
+ 
+  { 
+  "Fn::Join":[
+ "/", [  
+		"https:/",
+		{
+        "Ref": "BitbucketUsername"
+		}
+	  ]]},    
+	   {
+  "Fn::Join":[
+ "/", [ 
+	  "bitbucket.org",	   
+      {
+        "Ref": "BitbucketUsername"
+      },
+	   {
+        "Ref": "BitbucketREPONAME"
+      }    
+  ] ]
+}
+		
+      ]
+	  ]},	  
+     "Type" : {"Ref":   "PrimarySourceType"  }
+},
+
+"SecondarySources" : [ {
+  "Auth" :  {
+  "Resource" : { "Ref" : "github" },
+  "Type" : "OAUTH"
+},   
+"SourceIdentifier": "secondary",
+"Location" :  {
+  "Fn::Join": [
+    "/", [
+      "https:/",
+      "github.com",
+      {
+        "Ref": "GithubrepoOwner"
+      },
+	   {
+        "Ref": "GithubREPONAME"
+      }
+	  
+    ]
+  ]
+},
+  "Type" : "GITHUB"
+ } ],
+
+ "Triggers" : {
+ 
+  "Webhook" : "true"
+}
+  
+    }},
+	"MyApplication" :  {
+  "Type" : "AWS::CodeDeploy::Application",
+  "Properties" : {
+      "ApplicationName" :  { "Ref": "CodeDeployApp" }
+	  
+  }
+},
+    "CodeDeploygrp1": {
+  "Type" : "AWS::CodeDeploy::DeploymentGroup",
+  "Condition": "ASGOptionfalse",
+   "DependsOn":"MyApplication",  
+  "Properties" : {
+    
+      "ApplicationName" :  { "Ref": "CodeDeployApp" },
+	  "DeploymentGroupName" :  { "Ref": "CodeDeployApp" },
+
+      "DeploymentStyle" :  {
+	  "DeploymentOption" : "WITHOUT_TRAFFIC_CONTROL",
+  
+  "DeploymentType" : "IN_PLACE"
+},
+      "Ec2TagFilters" : [ { 	
+  "Key" : { "Ref": "TagKey" },
+  "Type" : "KEY_AND_VALUE",
+  "Value" : { "Ref": "TagValue" }
+}],
+     
+      "ServiceRoleArn" :  { "Fn::GetAtt": [      "CDRole",     "Arn"     ]   }
+     
+    }
+},
+    "CodeDeploygrp": {
+  "Type" : "AWS::CodeDeploy::DeploymentGroup",
+  "Condition": "ASGOption",
+   "DependsOn": ["MyApplication","ASG"],
+  "Properties" : {
+    
+      "ApplicationName" :  { "Ref": "CodeDeployApp" },
+	  "DeploymentGroupName" :  { "Ref": "CodeDeployApp" },
+
+      "DeploymentStyle" :  {
+	  "DeploymentOption" : "WITHOUT_TRAFFIC_CONTROL",
+  
+  "DeploymentType" : "IN_PLACE"
+},
+      "AutoScalingGroups" : [  { "Ref": "ASGName" }],
+     
+      "ServiceRoleArn" :   { "Fn::GetAtt": [      "CDRole",     "Arn"     ]   }
+     
+    }
+},
+	"TargetGroup": {
+			"Condition": "ASGOptionfalse",
+			"Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+			"Properties": {
+				"HealthCheckIntervalSeconds": 30,
+				"HealthCheckProtocol": {"Ref": "ALBProtocol"},
+				"HealthCheckPath" : "/index.html",
+				"HealthyThresholdCount": 2,
+				"Name": { 
+					"Fn::GetAtt": ["AppliLoadBalancer", "LoadBalancerName"]
+				},
+				"Port":  {"Ref" : "applicationport" },
+				"Protocol": {"Ref": "ALBProtocol"},
+				"UnhealthyThresholdCount": 2,
+				"VpcId": {	"Ref": "VPCID" },
+				"TargetType": "instance",
+				"Targets": [{  "Id" : { "Ref": "LinuxEC2Instance" }  }	]		
+			}
+		},
+	"TargetGroupASG": {
+			"Condition": "ASGOption",
+			"Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+			"Properties": {
+				"HealthCheckIntervalSeconds": 30,
+				"HealthCheckProtocol": {"Ref": "ALBProtocol"},
+				"HealthCheckPath" : "/index.html",
+				"HealthyThresholdCount": 2,
+				"Name": {
+					"Fn::GetAtt": ["AppliLoadBalancer", "LoadBalancerName"]
+				},
+			"Port":  {"Ref" : "applicationport" },
+				"Protocol": {"Ref": "ALBProtocol"},
+				"UnhealthyThresholdCount": 2,
+				"VpcId": {	"Ref": "VPCID" },
+				"TargetType": "instance"			
+			}
+		},
+	"Listener":  {
+	"Condition": "ASGOptionfalse",
+  "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+  "Properties" : {
+      
+	    "DefaultActions": [{	"TargetGroupArn": {	"Ref": "TargetGroup"},	"Type": "forward"}],
+  
+      "LoadBalancerArn" :  {"Ref": "AppliLoadBalancer"	},
+   "Port" :  { "Fn::FindInMap": [ "ALBPort", { "Ref": "ALBProtocol" }, "Port"]},
+      "Protocol" : { "Fn::FindInMap": [ "ALBPort", { "Ref": "ALBProtocol" }, "protocol"]}
+   
+    }
+},
+    "ListenerASG":  {
+	"Condition": "ASGOption",
+  "Type" : "AWS::ElasticLoadBalancingV2::Listener",
+  "Properties" : {	
+     
+   "DefaultActions": [{	"TargetGroupArn": {	"Ref": "TargetGroupASG"},	"Type": "forward"}],
+      "LoadBalancerArn" :  {"Ref": "AppliLoadBalancer"	},
+      "Port" :  { "Fn::FindInMap": [ "ALBPort", { "Ref": "ALBProtocol" }, "Port"]},
+      "Protocol" : { "Fn::FindInMap": [ "ALBPort", { "Ref": "ALBProtocol" }, "protocol"]}
+   
+    }
+},
+    "AppliLoadBalancer": {
+  "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+  "Properties" : {
+      "IpAddressType" : "ipv4",
+     
+      "Name" : {"Ref": "ALBName"},
+	  "SecurityGroups": [	{   "Fn::GetAtt": [    "SecurityGroup",  "GroupId"    ]     }],
+     "Subnets": { "Fn::Split" : [ "," , { "Ref" : "SubnetID"}  ] }, 
+     "Tags": [{	"Value": {	"Ref": "ALBName"	},	"Key": "Name" }],
+      "Type" : "application"
+	  
+    }
+},
+	"hoszone": {
+     "Type" : "AWS::Route53::HostedZone",
+      "Properties" : {
+
+      "Name" : {"Ref": "DomainName"},
+      "VPCs" : [ {
+      "VPCId" : {	"Ref": "VPCID" },
+      "VPCRegion" : { "Ref" : "AWS::Region" }
+}
+]
+    }
+},
+"myDNS1" : {
+		"DependsOn" : "hoszone",
+          "Type" : "AWS::Route53::RecordSet",
+         "Properties" : {
+         
+       
+				"HostedZoneName": {"Ref": "DomainName"},
+               "Name" : { "Fn::Join" : [ ".", [ "www",{"Ref": "DomainName"} ] ]},
+			   "TTL" : "300",
+               "Type" : "CNAME",
+			   "ResourceRecords" : [{"Ref": "DomainName"}]
+              
+             }
+		
+        },
+"myDNS" : {
+		"DependsOn" : "hoszone",
+          "Type" : "AWS::Route53::RecordSet",
+         "Properties" : {
+         
+       
+				"HostedZoneName": {"Ref": "DomainName"},
+               "Name" : {"Ref": "DomainName"},
+               "Type" : "A",
+               "AliasTarget" : {
+                    "HostedZoneId" : { "Fn::GetAtt" : ["AppliLoadBalancer", "CanonicalHostedZoneID"] },
+                  "DNSName" : { "Fn::GetAtt" : ["AppliLoadBalancer","DNSName"] }
+               }
+             }
+		
+        }
+     
+
+	}, 
+"Outputs": {
+    "CodeDeployTrustRoleARN": {
+      "Value": {
+        "Fn::GetAtt": [
+          "CDRole",
+          "Arn"
+        ]
+      }
+    }
+  }
+}
