@@ -16,6 +16,13 @@
 
       "ConstraintDescription": "SonarURL"
     },	
+		"healthcheckpath": {
+      "Description": "HealthCheckPath",
+      "Type": "String",
+	  "Default": "/",
+
+      "ConstraintDescription": "HealthCheckPath"
+    },
 	"BucketName": {
       "Description": "BucketName",
       "Type": "String",	 
@@ -1570,7 +1577,7 @@
 			"Properties": {
 				"HealthCheckIntervalSeconds": 30,
 				"HealthCheckProtocol": {"Ref": "ALBProtocol"},
-				"HealthCheckPath" : "/index.html",
+				"HealthCheckPath" : {"Ref": "healthcheckpath"},
 				"HealthyThresholdCount": 2,
 				"Name": { 
 					"Fn::GetAtt": ["AppliLoadBalancer", "LoadBalancerName"]
@@ -1589,7 +1596,7 @@
 			"Properties": {
 				"HealthCheckIntervalSeconds": 30,
 				"HealthCheckProtocol": {"Ref": "ALBProtocol"},
-				"HealthCheckPath" : "/index.html",
+				"HealthCheckPath" : {"Ref": "healthcheckpath"},
 				"HealthyThresholdCount": 2,
 				"Name": {
 					"Fn::GetAtt": ["AppliLoadBalancer", "LoadBalancerName"]
